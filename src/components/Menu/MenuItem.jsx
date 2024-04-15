@@ -1,22 +1,54 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Element } from 'react-scroll';
 import DropDown from "./DropDown";
+import { useCart } from '../Cart/CartContext';
 
-const MenuItem = ({ image, name, description, price }) => {
+const MenuItem = ({ id, image, name, description, price }) => {
+  const [quantity, setQuantity] = useState(0);
+  const { addToCart, removeFromCart } = useCart();
 
+  const handleAddToCart = () => {
+    addToCart({ id, image, name, description, price, quantity: quantity + 1 });
+    setQuantity(quantity + 1);
+  };
+
+  const handleRemoveFromCart = () => {
+    if (quantity === 1) {
+      removeFromCart(id);
+      setQuantity(0);
+    } else if (quantity > 0) {
+      removeFromCart(id);
+      setQuantity(quantity - 1);
+    }
+  };
 
   return (
-    <div> {/* Wrap the JSX inside a single parent element */}
+    <div>
       <DropDown/>
-      <div className="bg-white rounded-lg shadow-md overflow-hidden w-full mx-2  lg:mx-auto max-w-4xl">
-        <img src={image} alt={name} className="w-full h-52 object-cover" />
-        <div className="p-4">
-          <h2 className="text-lg font-bold">{name}</h2>
-          <p className="text-gray-600 text-sm">{description}</p>
-          <div className=' flex justify-between'>
-            <p className="text-lg font-semibold">Rs {price}</p>
-            <button className='bg-gray-700 text-white font-bold rounded-full p-2' onClick={() => addToCart({ image, name, description, price })}>Add to Cart</button>
+      <div className="bg-slate-50 rounded-lg flex justify-center items-center overflow-hidden lg:max-w-3xl md:h-52 lg:h-72 lg:mx-auto max-w-4xl sm:flex-col sm:items-center sm:text-center md:flex-row md:justify-between md:text-left">
+        <div className="p-4 md:w-1/2">
+          <h2 className="text-lg md:text-xl lg:text-xl font-bold">{name}</h2>
+          <p className="text-gray-600 text-sm md:text-base lg:text-lg">{description}</p>
+          <div className='flex justify-between'>
+            <p className="text-lg md:text-xl lg:text-xl font-semibold">Rs {price}</p>
           </div>
+        </div>
+        <div className="flex relative lg:mr-5 flex-col items-center justify-center md:w-1/3">
+          <img src={image} alt={name} className="lg:w-72 lg:h-52 md:h-32 w-52 h-20 mr-10 object-cover" />
+          {quantity > 0 ? (
+            <div className="flex justify-between items-center text-black absolute border border-gray-300 md:mt-32 lg:mt-52 lg:text-xl bg-white lg:w-52 w-24 mt-20 mr-10 h-10 shadow-lg rounded-lg p-2">
+              <button onClick={handleRemoveFromCart}>-</button>
+              <span>{quantity}</span>
+              <button onClick={handleAddToCart}>+</button>
+            </div>
+          ) : (
+            <button
+              className='text-red-400 absolute border border-gray-300 md:mt-32 lg:mt-52 bg-white lg:w-52 w-24 mt-20 mr-10 h-10 shadow-lg font-bold rounded-lg p-2' 
+              onClick={handleAddToCart}
+            >
+              ADD
+            </button>
+          )}
         </div>
       </div>
     </div>
@@ -26,16 +58,16 @@ const MenuItem = ({ image, name, description, price }) => {
 
 const Beverages = ({ addToCart }) => {
   const beverages = [
-    {id:1, image: 'https://d3nn873nee648n.cloudfront.net/900x600/14449/14-SQ538499.jpg', name: 'Spicy Tea', description: 'A perfect blend of loose leaf Ceylon tea, creamy milk, and  caramel-y sweetness.', price: 25 },
+    {id:1, image: 'https://d3nn873nee648n.cloudfront.net/900x600/14449/120-SQ538498.jpg', name: 'Spicy Tea', description: 'A perfect blend of loose leaf Ceylon tea, creamy milk, and  caramel-y sweetness.', price: 25 },
     { id:2, image: 'https://d3nn873nee648n.cloudfront.net/900x600/20524/300-PA1050849.jpg', name: 'Coffee', description: 'Made from the best coffee grounds, this cup of joe will kick start your day!', price: 25 },
     {id:3,  image: 'https://d3nn873nee648n.cloudfront.net/900x600/15351/220-SM625910.jpg', name: 'Fresh Juice', description: 'A refreshing glass of freshly squeezed juice, made with real fruit.', price: 50 },
-    {id:4,  image: 'https://d3nn873nee648n.cloudfront.net/900x600/16983/1-ES739031.jpg', name: 'Milkshake', description: 'A creamy and delicious drink made with milk, ice cream, and your choice of flavor.', price: 100 },
+    {id:4,  image: 'https://d3nn873nee648n.cloudfront.net/900x600/20379/1-PB1068754.jpg', name: 'Milkshake', description: 'A creamy and delicious drink made with milk, ice cream, and your choice of flavor.', price: 100 },
   ];
 
   return (
     <div>
-      <h2 className="text-2xl font-bold mb-5 mt-52  lg:mt-20 text-center">Beverages</h2>
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mx-4 lg:mx-12">
+      <h2 className="text-2xl font-bold mb-5 mt-52  lg:mt-40 text-center">Beverages</h2>
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-1 gap-4 mx-4 lg:mx-12">
         {beverages.map((item) => (
           <MenuItem key={item.id} {...item} addToCart={addToCart} />
         ))}
@@ -55,7 +87,7 @@ const Starters = ({ addToCart }) => {
   return (
     <div>
       <h2 className="text-2xl font-bold mb-4 text-center">Starters</h2>
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mx-4 lg:mx-12">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-1 gap-4 mx-4 lg:mx-12">
         {starters.map((item, index) => (
           <MenuItem key={item.id} {...item} addToCart={addToCart}/>
         ))}
@@ -75,7 +107,7 @@ const MainCourse  = ({ addToCart }) => {
   return (
     <div>
       <h2 className="text-2xl font-bold mb-4 text-center">Main Course</h2>
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mx-4 lg:mx-12">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-1 gap-4 mx-4 lg:mx-12">
         {mainCourse.map((item, index) => (
           <MenuItem key={item.id} {...item} addToCart={addToCart}/>
         ))}
@@ -94,7 +126,7 @@ const Soup  = ({ addToCart }) => {
   return (
     <div>
       <h2 className="text-2xl font-bold mb-4 text-center">Soups</h2>
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mx-4 lg:mx-12">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-1 gap-4 mx-4 lg:mx-12">
         {soups.map((item, index) => (
           <MenuItem key= {item.id} {...item} addToCart={addToCart} />
         ))}
@@ -114,7 +146,7 @@ const Desserts  = ({ addToCart }) => {
   return (
     <div>
       <h2 className="text-2xl font-bold mb-4 text-center">Desserts</h2>
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mx-4 lg:mx-12">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-1 gap-4 mx-4 lg:mx-12">
         {desserts.map((item, index) => (
           <MenuItem key={item.id} {...item} addToCart={addToCart} />
         ))}
@@ -124,10 +156,10 @@ const Desserts  = ({ addToCart }) => {
 };
 
 const Menu = () => {
-  // Define the addToCart function here
+  const [cartItems, setCartItems] = useState([]);
+
   const addToCart = (item) => {
-    // Implement your logic to add the item to the cart
-    console.log('Item added to cart:', item);
+    setCartItems([...cartItems, item]);
   };
 
   return (
